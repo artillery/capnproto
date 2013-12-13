@@ -49,6 +49,13 @@
 #include <windows.h>
 #endif
 
+#if EMSCRIPTEN
+#define pthread_rwlock_destroy(lock) 0
+#define pthread_rwlock_wrlock(lock) 0
+#define pthread_rwlock_rdlock(lock) 0
+#define pthread_rwlock_unlock(lock) 0
+#endif
+
 namespace kj {
 namespace _ {  // private
 

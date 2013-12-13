@@ -30,6 +30,11 @@
 #pragma GCC system_header
 #endif
 
+#if EMSCRIPTEN
+  #define __atomic_store_n(ptr, val, memmodel) (*ptr) = val
+  #define __atomic_load_n(ptr, memmodel) (*ptr)
+#endif
+
 #ifndef KJ_NO_COMPILER_CHECK
 #if __cplusplus < 201103L && !__CDT_PARSER__ && !_MSC_VER
   #error "This code requires C++11. Either your compiler does not support it or it is not enabled."
@@ -1258,5 +1263,6 @@ _::Deferred<Decay<Func>> defer(Func&& func) {
 // Run the given code when the function exits, whether by return or exception.
 
 }  // namespace kj
+
 
 #endif  // KJ_COMMON_H_

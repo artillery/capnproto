@@ -341,9 +341,16 @@ void throwRecoverableException(kj::Exception&& exception) {
 
 // =======================================================================================
 
+#if EMSCRIPTEN
+UnwindDetector::UnwindDetector() {}
+
+bool UnwindDetector::isUnwinding() const {
+  return false;
+}
+#else
+  #if __GNUC__
 namespace _ {  // private
 
-#if __GNUC__
 
 // Horrible -- but working -- hack:  We can dig into __cxa_get_globals() in order to extract the
 // count of uncaught exceptions.  This function is part of the C++ ABI implementation used on Linux,
@@ -400,9 +407,9 @@ uint uncaughtExceptionCount() {
   return std::uncaught_exception();
 }
 
-#else
-#error "This needs to be ported to your compiler / C++ ABI."
-#endif
+  #else
+  #error "This needs to be ported to your compiler / C++ ABI."
+  #endif
 
 }  // namespace _ (private)
 
@@ -411,6 +418,8 @@ UnwindDetector::UnwindDetector(): uncaughtCount(_::uncaughtExceptionCount()) {}
 bool UnwindDetector::isUnwinding() const {
   return _::uncaughtExceptionCount() > uncaughtCount;
 }
+
+#endif
 
 void UnwindDetector::catchExceptionsAsSecondaryFaults(_::Runnable& runnable) const {
   // TODO(someday):  Attach the secondary exception to whatever primary exception is causing
