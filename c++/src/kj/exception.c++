@@ -380,7 +380,9 @@ uint uncaughtExceptionCount() {
   return __cxa_get_globals()->uncaughtExceptions;
 }
 
+}  // namespace _ (private)
 #elif _MSC_VER
+namespace _ {  // private
 
 #if 0
 // TODO(msvc): The below was copied from:
