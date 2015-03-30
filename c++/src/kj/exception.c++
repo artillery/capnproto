@@ -403,23 +403,24 @@ uint uncaughtExceptionCount() {
 }
 
 }  // namespace _ (private)
-
-UnwindDetector::UnwindDetector(): uncaughtCount(_::uncaughtExceptionCount()) {}
-
-bool UnwindDetector::isUnwinding() const {
-  return _::uncaughtExceptionCount() > uncaughtCount;
-}
-
 #elif EMSCRIPTEN
+// EMSCRIPTEN uses std::uncaught_exception() directly.
+#else
+#error "This needs to be ported to your compiler / C++ ABI."
+#endif
 
+#if EMSCRIPTEN
 UnwindDetector::UnwindDetector() {}
 
 bool UnwindDetector::isUnwinding() const {
   return std::uncaught_exception();
 }
-
 #else
-#error "This needs to be ported to your compiler / C++ ABI."
+UnwindDetector::UnwindDetector(): uncaughtCount(_::uncaughtExceptionCount()) {}
+
+bool UnwindDetector::isUnwinding() const {
+  return _::uncaughtExceptionCount() > uncaughtCount;
+}
 #endif
 
 void UnwindDetector::catchExceptionsAsSecondaryFaults(_::Runnable& runnable) const {
